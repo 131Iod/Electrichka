@@ -50,6 +50,8 @@ public class Parser {
 		
 		String tmp[] = new String[allLinks.size()];
 		
+		// Избавление от null.
+		
 		int i = 0;
 		int j = 0;
 		
@@ -88,6 +90,8 @@ public class Parser {
 				routs[i] = allLinks.get(i).text();
 			}
 		}		
+		
+		// Избавление от null.
 		
 		String tmp[] = new String[allLinks.size()];
 		
@@ -169,7 +173,7 @@ public class Parser {
 		
 		// А тут некрасивое.
 		
-		/*for (int i = 0, j = 0, k = 0, l = 1; i < numbers.length && j < routs.length && k < arrives.length && l < departure.length; i++, j = j + 2, k = k + 2, l = l + 2) {
+		for (int i = 0, j = 0, k = 0, l = 1; i < numbers.length && j < routs.length && k < arrives.length && l < departure.length; i++, j = j + 2, k = k + 2, l = l + 2) {
 			if (numbers[i] != null) {
 				System.out.print(numbers[i] + " ");
 			}
@@ -182,20 +186,20 @@ public class Parser {
 			if (departure[l] != null) {
 				System.out.println(departure[l]);
 			}
-		}*/
+		}
 		
 		// Попытка подключения к БД
 		try {
-			String url = "jdbc:mysql://localhost:3306/train_routes";
-			String username = "root";
-			String password = "Viber20007153";
+			String url = "jdbc:mysql://localhost:3306/electrichka";
+			String username = "Iliya";
+			String password = "Kryaichiqi";
 			
 			Class.forName("com.mysql.cj.jdbc.Driver").getDeclaredConstructor().newInstance(); // Вроде как путь к файлу пакету драйвера БД (???)
 			
 			try (Connection conn = DriverManager.getConnection(url, username, password)){
-				System.out.println("Соединение с БД успешно создано!");
+				System.out.println("Соединение с БД" + url + " через пользователя " + username + " успешно создано!");
 				
-				String sql = "INSERT INTO route(Number_route, Arrival_station, Departure_station) Value (?, ?, ?)";
+				String sql = "INSERT INTO route(Number_train, Begin_station, End_station, Arrival_time, Departure_time) Value (?, ?, ?, ?, ?)";
 				
 				Statement statement = conn.createStatement();
 				
@@ -204,10 +208,11 @@ public class Parser {
 				// Если БД не пуста - удаляем всё перед записью.
 				// Условие почему-то работает неадеватно (сбрасывает соединение), поэтому решил просто всегда удалять.
 				
-				statement.executeUpdate("DELETE FROM route");	
+				statement.executeUpdate("DELETE FROM route");
+				System.out.println("Предварительная очистка БД произошла успешно!");
 				
 				// Тут запись в БД
-				for (int i = 0, j = 0; i < 17 && j < routs.length; i++, j = j + 2) {
+				for (int i = 0, j = 0, k = 0, l = 1; i < numbers.length && j < routs.length && k < arrives.length && l < departure.length; i++, j = j + 2, k = k + 2, l = l + 2) {
 					if (numbers[i] != null) {
 						pStatement.setString(1, numbers[i]);
 					}
@@ -215,27 +220,38 @@ public class Parser {
 						pStatement.setString(2, routs[j]);
 						pStatement.setString(3, routs[j + 1]);
 					}
+					if (arrives[k] != null) {
+						pStatement.setString(4, arrives[k]);
+					}
+					if (departure[l] != null) {
+						pStatement.setString(5, departure[l]);
+					}
 					pStatement.executeUpdate();
 				}
+				System.out.println();
+				System.out.println("Запись в БД произошла успешно!");
+				System.out.println();
 				
 				// Тут вывод из БД в консоль.
 				ResultSet result = statement.executeQuery("SELECT * FROM route");
 				while (result.next()) {
 					int id = result.getInt("ID_route");
-					String number = result.getString("Number_route");
-					String arrival = result.getString("Arrival_station");
-					String departuret = result.getString("Departure_station");
+					String number = result.getString("Number_train");
+					String route1 = result.getString("Begin_station");
+					String route2 = result.getString("End_station");
+					String arrivalt = result.getString("Arrival_time");
+					String departuret = result.getString("Departure_time");
 					
-					System.out.println(id + " " + number + " " + arrival + " - " + departuret);
+					System.out.println(id + " " + number + " " + route1 + " - " + route2 + " " + arrivalt + " - " + departuret);
 				}
-				
+				System.out.println();
 				System.out.println("Работа с БД успешно закончена!");
 			}		
 		}
 		catch(Exception ex) {
+			System.out.println();
 			System.out.println("Соединение аварийно прервано!");
 		}
-		
 		
 	}
 
