@@ -197,6 +197,7 @@ public class Parser {
 			Class.forName("com.mysql.cj.jdbc.Driver").getDeclaredConstructor().newInstance(); // Вроде как путь к файлу пакету драйвера БД (???)
 			
 			try (Connection conn = DriverManager.getConnection(url, username, password)){
+				System.out.println();
 				System.out.println("Соединение с БД" + url + " через пользователя " + username + " успешно создано!");
 				
 				String sql = "INSERT INTO route(Number_train, Begin_station, End_station, Arrival_time, Departure_time) Value (?, ?, ?, ?, ?)";
